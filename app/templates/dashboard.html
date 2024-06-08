@@ -2,10 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard</title>
+    <title>Performance Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <h1>Performance Dashboard</h1>
-    <p>Metrics will be displayed here.</p>
+    <div id="metrics">
+        <div class="metric">
+            <h2>CPU Usage</h2>
+            <p id="cpu-usage">Loading...</p>
+        </div>
+        <div class="metric">
+            <h2>Memory Usage</h2>
+            <p id="memory-usage">Loading...</p>
+        </div>
+        <div class="metric">
+            <h2>GPU Usage</h2>
+            <p id="gpu-usage">Loading...</p>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

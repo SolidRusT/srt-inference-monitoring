@@ -1,9 +1,17 @@
-from flask import Blueprint, render_template
-import prometheus_client
+from flask import Blueprint, render_template, jsonify
 
 main = Blueprint('main', __name__)
 
 @main.route('/')
 def dashboard():
-    # Render dashboard with real-time metrics
     return render_template('dashboard.html')
+
+@main.route('/api/metrics')
+def get_metrics():
+    # Example static data, replace with real metrics collection
+    data = {
+        'cpu_usage': 55.0,
+        'memory_usage': 70.0,
+        'gpu_usage': 40.0
+    }
+    return jsonify(data)

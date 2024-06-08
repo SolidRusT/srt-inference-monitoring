@@ -1,0 +1,31 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+}
+
+#metrics {
+  display: flex;
+  justify-content: space-around;
+}
+
+.metric {
+  border: 1px solid #ccc;
+  padding: 20px;
+  width: 30%;
+  text-align: center;
+}
+
+.metric h2 {
+  margin: 0;
+  font-size: 1.5em;
+}
+
+.metric p {
+  font-size: 1.2em;
+  margin: 10px 0 0 0;
+}
