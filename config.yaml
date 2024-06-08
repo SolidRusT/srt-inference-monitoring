@@ -1,0 +1,14 @@
+servers:
+  - name: Erebus
+    address: http://erebus:9090
+  - name: Thanatos
+    address: http://thanatos:9090
+  - name: Zelus
+    address: http://zelus:9090
+  - name: Orpheus
+    address: http://orpheus:9090
+
+dashboard:
+  host: 0.0.0.0
+  port: 5000
+  debug: true
