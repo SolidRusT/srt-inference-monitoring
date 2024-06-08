@@ -8,7 +8,7 @@ This tool monitors the performance of a set of machines in a local network. It c
 
 - Real-time performance monitoring
 - Metrics collection using Prometheus
-- Dashboard visualization with Flask
+- Dashboard visualization with Flask and Chart.js
 
 ## Configuration
 
@@ -26,6 +26,20 @@ pip install -r requirements.txt
 gunicorn -c gunicorn_config.py app.main:app
 ```
 
+## Running Tests
+
+```bash
+python -m unittest discover tests
+```
+
 ## License
 
 MIT License. See `LICENSE` for more details.
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request.
+
+## Author
+
+Suparious, SolidRusT Networks

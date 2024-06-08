@@ -4,22 +4,14 @@
     <meta charset="UTF-8">
     <title>Performance Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <h1>Performance Dashboard</h1>
     <div id="metrics">
-        <div class="metric">
-            <h2>CPU Usage</h2>
-            <p id="cpu-usage">Loading...</p>
-        </div>
-        <div class="metric">
-            <h2>Memory Usage</h2>
-            <p id="memory-usage">Loading...</p>
-        </div>
-        <div class="metric">
-            <h2>GPU Usage</h2>
-            <p id="gpu-usage">Loading...</p>
-        </div>
+        <canvas id="cpuUsageChart"></canvas>
+        <canvas id="memoryUsageChart"></canvas>
+        <canvas id="gpuUsageChart"></canvas>
     </div>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>

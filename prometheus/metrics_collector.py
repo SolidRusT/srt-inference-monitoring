@@ -2,6 +2,7 @@ import requests
 import yaml
 import logging
 from prometheus_client import CollectorRegistry, Gauge, push_to_gateway
+from apscheduler.schedulers.background import BackgroundScheduler
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -36,4 +37,12 @@ def collect_metrics():
             logger.error(f"Error collecting metrics from {server['name']}: {e}")
 
 if __name__ == "__main__":
-    collect_metrics()
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(collect_metrics, 'interval', seconds=30)  # Adjust the interval as needed
+    scheduler.start()
+    
+    try:
+        while True:
+            pass  # Keep the main thread alive
+    except (KeyboardInterrupt, SystemExit):
+        scheduler.shutdown()
