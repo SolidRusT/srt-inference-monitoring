@@ -13,13 +13,13 @@ Ensure the `config.yaml` file is correctly configured with your server details.
 ```yaml
 servers:
   - name: Erebus
-    address: http://erebus:9090
+    address: http://erebus:9100
   - name: Thanatos
-    address: http://thanatos:9090
+    address: http://thanatos:9100
   - name: Zelus
-    address: http://zelus:9090
+    address: http://zelus:9100
   - name: Orpheus
-    address: http://orpheus:9090
+    address: http://orpheus:9100
 
 dashboard:
   host: 0.0.0.0
@@ -41,72 +41,38 @@ prometheus --config.file=prometheus.yml
 
 ### 3. Set Up Remote Servers
 
-To enable metric collection, set up the Prometheus Node Exporter on each remote server.
+To enable metric collection, set up the Prometheus Node Exporter on each remote server. Refer to `NODES.md` for detailed instructions.
 
-#### Steps for setting up Node Exporter:
+#### Steps for setting up Node Exporter
 
-1. **Download Node Exporter**:
+1. **Update the package list**:
 
-    ```bash
-    wget https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz
-    ```
+   ```bash
+   sudo apt update
+   ```
 
-2. **Extract the tarball**:
+2. **Install Prometheus Node Exporter**:
 
-    ```bash
-    tar xvfz node_exporter-1.3.1.linux-amd64.tar.gz
-    ```
+   ```bash
+   sudo apt install prometheus-node-exporter
+   ```
 
-3. **Move the binary to a suitable location**:
+3. **Start and enable Node Exporter**:
 
-    ```bash
-    sudo mv node_exporter-1.3.1.linux-amd64/node_exporter /usr/local/bin/
-    ```
+   ```bash
+   sudo systemctl start prometheus-node-exporter
+   sudo systemctl enable prometheus-node-exporter
+   ```
 
-4. **Create a systemd service file**:
+4. **Verify Node Exporter**:
 
-    ```bash
-    sudo nano /etc/systemd/system/node_exporter.service
-    ```
+   - Check the status:
 
-    Add the following content:
+     ```bash
+     sudo systemctl status prometheus-node-exporter
+     ```
 
-    ```ini
-    [Unit]
-    Description=Node Exporter
-    Wants=network-online.target
-    After=network-online.target
-
-    [Service]
-    User=nodeusr
-    ExecStart=/usr/local/bin/node_exporter
-    Restart=always
-
-    [Install]
-    WantedBy=default.target
-    ```
-
-5. **Reload systemd**:
-
-    ```bash
-    sudo systemctl daemon-reload
-    ```
-
-6. **Start and enable Node Exporter**:
-
-    ```bash
-    sudo systemctl start node_exporter
-    sudo systemctl enable node_exporter
-    ```
-
-7. **Verify Node Exporter**:
-    - Check the status:
-
-        ```bash
-        sudo systemctl status node_exporter
-        ```
-
-    - Verify metrics are exposed at `http://<server_address>:9100/metrics`.
+   - Verify metrics are exposed at `http://<server_address>:9100/metrics`.
 
 ### 4. Run Metrics Collector
 
@@ -134,9 +100,7 @@ Open a web browser and navigate to `http://localhost:5000` to access the perform
 
 ### 7. Verify Metrics Display
 
-Ensure that the performance metrics for all configured
-
- servers are displayed correctly on the dashboard.
+Ensure that the performance metrics for all configured servers are displayed correctly on the dashboard.
 
 ### 8. Run Unit Tests
 
@@ -208,6 +172,7 @@ python -m unittest discover tests
 ### Running Tests
 
 1. **Unit Tests**:
+
    - Run the unit tests to ensure all components are functioning correctly.
    - Command:
 
