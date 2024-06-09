@@ -9,10 +9,30 @@
 <body>
     <h1>Performance Dashboard</h1>
     <div id="metrics">
-        <canvas id="cpuUsageChart"></canvas>
-        <canvas id="memoryUsageChart"></canvas>
-        <canvas id="gpuUsageChart"></canvas>
+        <!-- Canvases will be dynamically created here -->
     </div>
+    <script>
+        const metricsContainer = document.getElementById('metrics');
+
+        function createCanvas(server, metric) {
+            const canvasContainer = document.createElement('div');
+            canvasContainer.className = 'metric';
+            const canvas = document.createElement('canvas');
+            canvas.id = `${server}-${metric}`;
+            canvasContainer.appendChild(canvas);
+            metricsContainer.appendChild(canvasContainer);
+        }
+
+        fetch('/api/metrics')
+            .then(response => response.json())
+            .then(data => {
+                for (const server in data) {
+                    for (const metric in data[server]) {
+                        createCanvas(server, metric);
+                    }
+                }
+            });
+    </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

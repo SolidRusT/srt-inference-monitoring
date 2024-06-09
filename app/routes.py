@@ -1,4 +1,11 @@
 from flask import Blueprint, render_template, jsonify
+import logging
+import prometheus_client
+from prometheus.metrics_collector import metrics
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 main = Blueprint('main', __name__)
 
@@ -8,10 +15,7 @@ def dashboard():
 
 @main.route('/api/metrics')
 def get_metrics():
-    # Example static data, replace with real metrics collection
-    data = {
-        'cpu_usage': 55.0,
-        'memory_usage': 70.0,
-        'gpu_usage': 40.0
-    }
+    data = {server: {metric: gauge.collect()[0].samples[0].value for metric, gauge in server_metrics.items()} 
+            for server, server_metrics in metrics.items()}
+    logger.info(f"Returning metrics data: {data}")
     return jsonify(data)
