@@ -37,6 +37,22 @@ def parse_prometheus_metrics(metrics_text):
                 continue
     return data
 
+def aggregate_cpu_usage(data):
+    cpu_keys = [key for key in data.keys() if 'node_cpu_seconds_total' in key]
+    cpu_usage = sum(data[key] for key in cpu_keys)
+    return cpu_usage
+
+def aggregate_disk_usage(data):
+    disk_keys = [key for key in data.keys() if 'node_filesystem_avail_bytes' in key]
+    disk_usage = sum(data[key] for key in disk_keys)
+    return disk_usage
+
+def aggregate_network_io(data):
+    network_receive_keys = [key for key in data.keys() if 'node_network_receive_bytes_total' in key]
+    network_transmit_keys = [key for key in data.keys() if 'node_network_transmit_bytes_total' in key]
+    network_io = sum(data[key] for key in network_receive_keys + network_transmit_keys)
+    return network_io
+
 def collect_metrics(redis_client):
     logger.info("Collecting metrics")
     config = load_config()
@@ -48,17 +64,20 @@ def collect_metrics(redis_client):
             response.raise_for_status()
             data = parse_prometheus_metrics(response.text)
             logger.info(f"Collected metrics from {server['name']}: {data}")
-            metrics[f'{server["name"]}_cpu_usage'].set(data.get('node_cpu_seconds_total', 0))
+            cpu_usage = aggregate_cpu_usage(data)
+            disk_usage = aggregate_disk_usage(data)
+            network_io = aggregate_network_io(data)
+            metrics[f'{server["name"]}_cpu_usage'].set(cpu_usage)
             metrics[f'{server["name"]}_memory_usage'].set(data.get('node_memory_MemTotal_bytes', 0))
-            metrics[f'{server["name"]}_gpu_usage'].set(data.get('nvidia_gpu_usage', 0))
-            metrics[f'{server["name"]}_disk_usage'].set(data.get('node_filesystem_avail_bytes', 0))
-            metrics[f'{server["name"]}_network_io'].set(data.get('node_network_receive_bytes_total', 0))
+            metrics[f'{server["name"]}_gpu_usage'].set(data.get('nvidia_gpu_utilization', 0))  # Ensure correct key
+            metrics[f'{server["name"]}_disk_usage'].set(disk_usage)
+            metrics[f'{server["name"]}_network_io'].set(network_io)
             # Cache metrics in Redis
-            redis_client.set(f'{server["name"]}_cpu_usage', data.get('node_cpu_seconds_total', 0))
+            redis_client.set(f'{server["name"]}_cpu_usage', cpu_usage)
             redis_client.set(f'{server["name"]}_memory_usage', data.get('node_memory_MemTotal_bytes', 0))
-            redis_client.set(f'{server["name"]}_gpu_usage', data.get('nvidia_gpu_usage', 0))
-            redis_client.set(f'{server["name"]}_disk_usage', data.get('node_filesystem_avail_bytes', 0))
-            redis_client.set(f'{server["name"]}_network_io', data.get('node_network_receive_bytes_total', 0))
+            redis_client.set(f'{server["name"]}_gpu_usage', data.get('nvidia_gpu_utilization', 0))
+            redis_client.set(f'{server["name"]}_disk_usage', disk_usage)
+            redis_client.set(f'{server["name"]}_network_io', network_io)
             # Log Redis cache
             logger.info(f"Cached metrics for {server['name']} in Redis")
         except requests.exceptions.RequestException as e:
