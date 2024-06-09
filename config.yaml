@@ -7,8 +7,8 @@ servers:
     address: http://zelus:9100
   - name: Orpheus
     address: http://orpheus:9100
-  - name: Hades
-    address: http://hades:9100
+#  - name: Hades
+#    address: http://hades:9100
 
 dashboard:
   host: 0.0.0.0

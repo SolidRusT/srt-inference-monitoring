@@ -11,7 +11,7 @@ setup(
         'pyyaml==6.0',
         'requests==2.28.2',
         'APScheduler==3.9.1.post1',
-        'redis==4.3.4'
+        'redis>=4.3.4'
     ],
     entry_points={
         'console_scripts': [
