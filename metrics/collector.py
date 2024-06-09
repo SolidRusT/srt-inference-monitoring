@@ -1,10 +1,10 @@
 import requests
 import yaml
 import logging
-from prometheus_client import CollectorRegistry, Gauge, start_http_server
+from prometheus_client import start_http_server
 from apscheduler.schedulers.background import BackgroundScheduler
 from redis import Redis
-from metrics.prometheus_metrics import registry, metrics
+from metrics.prometheus_metrics import registry, initialize_metric, metrics  # Ensure metrics is imported
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -16,11 +16,11 @@ def load_config():
 
 def initialize_metrics(server_name):
     logger.info(f"Initializing metrics for server: {server_name}")
-    metrics[server_name] = {
-        'cpu_usage': Gauge(f'{server_name}_cpu_usage', 'CPU Usage', registry=registry),
-        'memory_usage': Gauge(f'{server_name}_memory_usage', 'Memory Usage', registry=registry),
-        'gpu_usage': Gauge(f'{server_name}_gpu_usage', 'GPU Usage', registry=registry),
-    }
+    initialize_metric(server_name, 'cpu_usage', 'CPU Usage')
+    initialize_metric(server_name, 'memory_usage', 'Memory Usage')
+    initialize_metric(server_name, 'gpu_usage', 'GPU Usage')
+    initialize_metric(server_name, 'disk_usage', 'Disk Usage')
+    initialize_metric(server_name, 'network_io', 'Network I/O')
 
 def parse_prometheus_metrics(metrics_text):
     data = {}
@@ -48,13 +48,17 @@ def collect_metrics(redis_client):
             response.raise_for_status()
             data = parse_prometheus_metrics(response.text)
             logger.info(f"Collected metrics from {server['name']}: {data}")
-            metrics[server['name']]['cpu_usage'].set(data.get('node_cpu_seconds_total', 0))
-            metrics[server['name']]['memory_usage'].set(data.get('node_memory_MemTotal_bytes', 0))
-            metrics[server['name']]['gpu_usage'].set(data.get('nvidia_gpu_usage', 0))
+            metrics[f'{server["name"]}_cpu_usage'].set(data.get('node_cpu_seconds_total', 0))
+            metrics[f'{server["name"]}_memory_usage'].set(data.get('node_memory_MemTotal_bytes', 0))
+            metrics[f'{server["name"]}_gpu_usage'].set(data.get('nvidia_gpu_usage', 0))
+            metrics[f'{server["name"]}_disk_usage'].set(data.get('node_filesystem_avail_bytes', 0))
+            metrics[f'{server["name"]}_network_io'].set(data.get('node_network_receive_bytes_total', 0))
             # Cache metrics in Redis
             redis_client.set(f'{server["name"]}_cpu_usage', data.get('node_cpu_seconds_total', 0))
             redis_client.set(f'{server["name"]}_memory_usage', data.get('node_memory_MemTotal_bytes', 0))
             redis_client.set(f'{server["name"]}_gpu_usage', data.get('nvidia_gpu_usage', 0))
+            redis_client.set(f'{server["name"]}_disk_usage', data.get('node_filesystem_avail_bytes', 0))
+            redis_client.set(f'{server["name"]}_network_io', data.get('node_network_receive_bytes_total', 0))
             # Log Redis cache
             logger.info(f"Cached metrics for {server['name']} in Redis")
         except requests.exceptions.RequestException as e:
