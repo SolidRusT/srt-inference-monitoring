@@ -15,6 +15,7 @@ This tool monitors the performance of a set of machines in a local network. It c
 1. **Python 3.11**
 2. **Prometheus Gateway** running on `localhost:9091`
 3. **Prometheus Node Exporter** installed and running on each node (refer to `NODES.md` for setup instructions)
+4. **NVIDIA GPU drivers and CUDA toolkit** (if GPU usage is to be monitored)
 
 ## Configuration
 
@@ -37,6 +38,13 @@ dashboard:
   host: 0.0.0.0
   port: 5000
   debug: true
+
+metrics_port: 8000
+
+redis:
+  host: localhost
+  port: 6379
+  db: 0
 ```
 
 ## Installation
@@ -66,13 +74,19 @@ dashboard:
 1. **Start the Prometheus gateway**:
    Ensure that the Prometheus gateway is running on `localhost:9091`.
 
-2. **Start the combined service**:
+2. **Start the metrics collector**:
 
    ```bash
    python start.py
    ```
 
-3. **Access the dashboard**:
+3. **Start the Flask application using Gunicorn**:
+
+   ```bash
+   gunicorn -c gunicorn_config.py app.main:app
+   ```
+
+4. **Access the dashboard**:
    Open a web browser and navigate to `http://localhost:5000`.
 
 ## Running Tests

@@ -4,7 +4,7 @@ import logging
 from prometheus_client import start_http_server
 from apscheduler.schedulers.background import BackgroundScheduler
 from redis import Redis
-from metrics.prometheus_metrics import registry, initialize_metric, metrics  # Ensure metrics is imported
+from metrics.prometheus_metrics import registry, initialize_metric, metrics
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -67,15 +67,16 @@ def collect_metrics(redis_client):
             cpu_usage = aggregate_cpu_usage(data)
             disk_usage = aggregate_disk_usage(data)
             network_io = aggregate_network_io(data)
+            gpu_usage = data.get('dcgm_gpu_utilization', 0)  # Fetch GPU utilization from Prometheus
             metrics[f'{server["name"]}_cpu_usage'].set(cpu_usage)
             metrics[f'{server["name"]}_memory_usage'].set(data.get('node_memory_MemTotal_bytes', 0))
-            metrics[f'{server["name"]}_gpu_usage'].set(data.get('nvidia_gpu_utilization', 0))  # Ensure correct key
+            metrics[f'{server["name"]}_gpu_usage'].set(gpu_usage)
             metrics[f'{server["name"]}_disk_usage'].set(disk_usage)
             metrics[f'{server["name"]}_network_io'].set(network_io)
             # Cache metrics in Redis
             redis_client.set(f'{server["name"]}_cpu_usage', cpu_usage)
             redis_client.set(f'{server["name"]}_memory_usage', data.get('node_memory_MemTotal_bytes', 0))
-            redis_client.set(f'{server["name"]}_gpu_usage', data.get('nvidia_gpu_utilization', 0))
+            redis_client.set(f'{server["name"]}_gpu_usage', gpu_usage)
             redis_client.set(f'{server["name"]}_disk_usage', disk_usage)
             redis_client.set(f'{server["name"]}_network_io', network_io)
             # Log Redis cache

@@ -1,134 +1,109 @@
-# Node Setup for Performance Monitoring
+# NODES Setup
 
-This document outlines the steps required to prepare each node (server) for performance monitoring using Prometheus Node Exporter. Follow these instructions to ensure that each node is configured correctly and can report metrics to the monitoring server.
+This document outlines the steps required to prepare each node for monitoring by the Performance Monitor application.
 
-## Prerequisites
+## Install Prometheus Node Exporter
 
-- Each node should be running Ubuntu 24.04 LTS.
-- The monitoring server should have Prometheus and the Performance Monitor application set up.
+1. **Download and install Node Exporter**:
 
-## Steps to Set Up Prometheus Node Exporter on Each Node
+    ```bash
+    sudo apt-get update
+    sudo apt-get install -y prometheus-node-exporter
+    ```
 
-### 1. Update the Package List
+2. **Create a systemd service file for Node Exporter**:
 
-Ensure that your package list is up-to-date.
+    ```bash
+    sudo nano /etc/systemd/system/node_exporter.service
+    ```
 
-```bash
-sudo apt update
-```
+    Add the following content:
 
-### 2. Install Prometheus Node Exporter
+    ```ini
+    [Unit]
+    Description=Node Exporter
+    Wants=network-online.target
+    After=network-online.target
 
-Install Prometheus Node Exporter using the package manager.
+    [Service]
+    User=nodeusr
+    ExecStart=/usr/bin/prometheus-node-exporter
+    Restart=always
 
-```bash
-sudo apt install prometheus-node-exporter
-```
+    [Install]
+    WantedBy=default.target
+    ```
 
-### 3. Configure Prometheus Node Exporter
+3. **Reload systemd, start and enable Node Exporter**:
 
-The default configuration is generally sufficient for basic metrics collection. However, you can customize it if needed by editing the configuration file:
+    ```bash
+    sudo systemctl daemon-reload
+    sudo systemctl start node_exporter
+    sudo systemctl enable node_exporter
+    ```
 
-```bash
-sudo nano /etc/default/prometheus-node-exporter
-```
+## Install Prometheus NVIDIA Exporter
 
-### 4. Start and Enable the Node Exporter Service
+To monitor GPU usage, install the NVIDIA DCGM exporter on each machine with an NVIDIA GPU.
 
-Start the Prometheus Node Exporter service and enable it to start on boot.
+1. **Install NVIDIA DCGM**:
 
-```bash
-# Start the Prometheus Node Exporter service
-sudo systemctl start prometheus-node-exporter
+    ```bash
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-repo-ubuntu1804_10.2.89-1_amd64.deb
+    sudo dpkg -i cuda-repo-ubuntu1804_10.2.89-1_amd64.deb
+    sudo apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
+    sudo apt-get update
+    sudo apt-get install -y datacenter-gpu-manager
+    ```
 
-# Enable the service to start on boot
-sudo systemctl enable prometheus-node-exporter
+2. **Install the NVIDIA DCGM exporter**:
 
-# Verify that the service is running
-sudo systemctl status prometheus-node-exporter
-```
+    ```bash
+    wget https://github.com/NVIDIA/dcgm-exporter/releases/download/v2.0.13-2.3.0/nvidia-dcgm-exporter_2.0.13-2.3.0_amd64.deb
+    sudo dpkg -i nvidia-dcgm-exporter_2.0.13-2.3.0_amd64.deb
+    ```
 
-### 5. Verify Node Exporter Installation
+3. **Create a systemd service file for NVIDIA DCGM exporter**:
 
-Check that Prometheus Node Exporter is running and listening on the default port (`9100`).
+    ```bash
+    sudo nano /etc/systemd/system/dcgm-exporter.service
+    ```
 
-```bash
-curl http://localhost:9100/metrics
-```
+    Add the following content:
 
-You should see a list of metrics being collected by Prometheus Node Exporter.
+    ```ini
+    [Unit]
+    Description=NVIDIA DCGM Exporter
+    Wants=network-online.target
+    After=network-online.target
 
-## Example Systemd Service Configuration
+    [Service]
+    User=nvidiauser
+    ExecStart=/usr/bin/dcgm-exporter
+    Restart=always
 
-If you need to customize the Node Exporter service, you can create or edit the systemd service file.
+    [Install]
+    WantedBy=default.target
+    ```
 
-```bash
-sudo nano /etc/systemd/system/prometheus-node-exporter.service
-```
+4. **Reload systemd, start and enable NVIDIA DCGM exporter**:
 
-### Example Service Configuration
+    ```bash
+    sudo systemctl daemon-reload
+    sudo systemctl start dcgm-exporter
+    sudo systemctl enable dcgm-exporter
+    ```
 
-```ini
-[Unit]
-Description=Prometheus Node Exporter
-Wants=network-online.target
-After=network-online.target
+## Verifying Prometheus Configuration
 
-[Service]
-User=prometheus
-ExecStart=/usr/bin/prometheus-node-exporter \
-  --collector.cpu \
-  --collector.diskstats \
-  --collector.filesystem \
-  --collector.loadavg \
-  --collector.meminfo \
-  --collector.netdev \
-  --collector.stat \
-  --collector.systemd \
-  --collector.time \
-  --collector.uname \
-  --collector.vmstat \
-  --collector.xfs \
-  --collector.zfs
+Ensure the Prometheus Node Exporter and NVIDIA DCGM exporter are running and exposing metrics at `http://<server_address>:9100/metrics`.
 
-[Install]
-WantedBy=default.target
-```
+### Verify GPU Metrics
 
-After editing the service file, reload the systemd daemon and restart the Node Exporter service.
+1. **Check GPU metrics**:
 
-```bash
-sudo systemctl daemon-reload
-sudo systemctl restart prometheus-node-exporter
-```
+    ```bash
+    curl http://localhost:9100/metrics | grep 'dcgm_gpu_utilization'
+    ```
 
-## Adding Nodes to `config.yaml`
-
-Once Prometheus Node Exporter is set up and running on each node, update the `config.yaml` file on the monitoring server to include these nodes.
-
-### Example `config.yaml`
-
-```yaml
-servers:
-  - name: Erebus
-    address: http://erebus:9100
-  - name: Thanatos
-    address: http://thanatos:9100
-  - name: Zelus
-    address: http://zelus:9100
-  - name: Orpheus
-    address: http://orpheus:9100
-
-dashboard:
-  host: 0.0.0.0
-  port: 5000
-  debug: true
-```
-
-## Final Steps
-
-1. **Ensure that Prometheus Node Exporter is running on each node**.
-2. **Update the `config.yaml` file on the monitoring server with the correct addresses for the Node Exporters**.
-3. **Follow the steps outlined in the `README.md` and `TESTING.md` files to start the metrics collector, Flask application, and access the dashboard**.
-
-By following these steps, you can ensure that each node is properly set up to report metrics to the monitoring server, allowing you to monitor the performance of your nodes effectively.
+By following these steps, you can ensure that the nodes are correctly set up to expose the required metrics for monitoring.
