@@ -66,19 +66,13 @@ dashboard:
 1. **Start the Prometheus gateway**:
    Ensure that the Prometheus gateway is running on `localhost:9091`.
 
-2. **Start the metrics collector**:
+2. **Start the combined service**:
 
    ```bash
-   python metrics/collector.py
+   python start.py
    ```
 
-3. **Start the Flask application using Gunicorn**:
-
-   ```bash
-   gunicorn -c gunicorn_config.py app.main:app
-   ```
-
-4. **Access the dashboard**:
+3. **Access the dashboard**:
    Open a web browser and navigate to `http://localhost:5000`.
 
 ## Running Tests

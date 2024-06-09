@@ -1,16 +1,14 @@
 import requests
 import yaml
 import logging
-from prometheus_client import CollectorRegistry, Gauge, push_to_gateway
+from prometheus_client import CollectorRegistry, Gauge, start_http_server
 from apscheduler.schedulers.background import BackgroundScheduler
+from redis import Redis
+from metrics.prometheus_metrics import registry, metrics
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# Initialize Prometheus metrics
-registries = {}
-metrics = {}
 
 def load_config():
     with open('config.yaml', 'r') as file:
@@ -18,15 +16,13 @@ def load_config():
 
 def initialize_metrics(server_name):
     logger.info(f"Initializing metrics for server: {server_name}")
-    registry = CollectorRegistry()
     metrics[server_name] = {
         'cpu_usage': Gauge(f'{server_name}_cpu_usage', 'CPU Usage', registry=registry),
         'memory_usage': Gauge(f'{server_name}_memory_usage', 'Memory Usage', registry=registry),
         'gpu_usage': Gauge(f'{server_name}_gpu_usage', 'GPU Usage', registry=registry),
     }
-    registries[server_name] = registry
 
-def collect_metrics():
+def collect_metrics(redis_client):
     logger.info("Collecting metrics")
     config = load_config()
     for server in config['servers']:
@@ -40,13 +36,25 @@ def collect_metrics():
             metrics[server['name']]['cpu_usage'].set(data['cpu_usage'])
             metrics[server['name']]['memory_usage'].set(data['memory_usage'])
             metrics[server['name']]['gpu_usage'].set(data['gpu_usage'])
-            push_to_gateway('localhost:9091', job=server['name'], registry=registries[server['name']])
+            # Cache metrics in Redis
+            redis_client.set(f'{server["name"]}_cpu_usage', data['cpu_usage'])
+            redis_client.set(f'{server["name"]}_memory_usage', data['memory_usage'])
+            redis_client.set(f'{server["name"]}_gpu_usage', data['gpu_usage'])
         except requests.exceptions.RequestException as e:
             logger.error(f"Error collecting metrics from {server['name']}: {e}")
 
 if __name__ == "__main__":
+    config = load_config()
+    metrics_port = config.get('metrics_port', 8000)
+    redis_config = config.get('redis', {})
+    redis_client = Redis(
+        host=redis_config.get('host', 'localhost'),
+        port=redis_config.get('port', 6379),
+        db=redis_config.get('db', 0)
+    )
+    start_http_server(metrics_port, registry=registry)  # Expose metrics on specified port
     scheduler = BackgroundScheduler()
-    scheduler.add_job(collect_metrics, 'interval', seconds=30)
+    scheduler.add_job(collect_metrics, 'interval', seconds=30, args=[redis_client])
     scheduler.start()
     logger.info("Scheduler started")
     try:
@@ -55,4 +63,3 @@ if __name__ == "__main__":
     except (KeyboardInterrupt, SystemExit):
         scheduler.shutdown()
         logger.info("Scheduler stopped")
- 

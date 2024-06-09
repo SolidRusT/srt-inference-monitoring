@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, jsonify
 import logging
 import prometheus_client
-from prometheus.metrics_collector import metrics
+from metrics.collector import metrics  # Update the import path
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
