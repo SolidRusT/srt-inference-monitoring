@@ -22,6 +22,21 @@ def initialize_metrics(server_name):
         'gpu_usage': Gauge(f'{server_name}_gpu_usage', 'GPU Usage', registry=registry),
     }
 
+def parse_prometheus_metrics(metrics_text):
+    data = {}
+    for line in metrics_text.splitlines():
+        if line.startswith('#') or not line:
+            continue
+        parts = line.split()
+        if len(parts) == 2:
+            key, value = parts
+            try:
+                data[key] = float(value)
+            except ValueError:
+                logger.warning(f"Could not convert value to float: {value}")
+                continue
+    return data
+
 def collect_metrics(redis_client):
     logger.info("Collecting metrics")
     config = load_config()
@@ -31,15 +46,17 @@ def collect_metrics(redis_client):
         try:
             response = requests.get(server['address'] + '/metrics')
             response.raise_for_status()
-            data = response.json()
+            data = parse_prometheus_metrics(response.text)
             logger.info(f"Collected metrics from {server['name']}: {data}")
-            metrics[server['name']]['cpu_usage'].set(data['cpu_usage'])
-            metrics[server['name']]['memory_usage'].set(data['memory_usage'])
-            metrics[server['name']]['gpu_usage'].set(data['gpu_usage'])
+            metrics[server['name']]['cpu_usage'].set(data.get('node_cpu_seconds_total', 0))
+            metrics[server['name']]['memory_usage'].set(data.get('node_memory_MemTotal_bytes', 0))
+            metrics[server['name']]['gpu_usage'].set(data.get('nvidia_gpu_usage', 0))
             # Cache metrics in Redis
-            redis_client.set(f'{server["name"]}_cpu_usage', data['cpu_usage'])
-            redis_client.set(f'{server["name"]}_memory_usage', data['memory_usage'])
-            redis_client.set(f'{server["name"]}_gpu_usage', data['gpu_usage'])
+            redis_client.set(f'{server["name"]}_cpu_usage', data.get('node_cpu_seconds_total', 0))
+            redis_client.set(f'{server["name"]}_memory_usage', data.get('node_memory_MemTotal_bytes', 0))
+            redis_client.set(f'{server["name"]}_gpu_usage', data.get('nvidia_gpu_usage', 0))
+            # Log Redis cache
+            logger.info(f"Cached metrics for {server['name']} in Redis")
         except requests.exceptions.RequestException as e:
             logger.error(f"Error collecting metrics from {server['name']}: {e}")
 

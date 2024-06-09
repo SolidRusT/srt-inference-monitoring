@@ -15,7 +15,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'start-monitoring=app.start:main',
+            'start-monitoring=start:main',
         ],
     },
 )
