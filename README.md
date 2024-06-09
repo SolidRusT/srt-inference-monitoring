@@ -44,8 +44,8 @@ dashboard:
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/your-repo/performance-monitor.git
-   cd performance-monitor
+   git clone https://github.com/SolidRusT/srt-inference-monitoring.git
+   cd srt-inference-monitoring
    ```
 
 2. **Create and activate a virtual environment**:
@@ -69,7 +69,7 @@ dashboard:
 2. **Start the metrics collector**:
 
    ```bash
-   python prometheus/metrics_collector.py
+   python metrics/collector.py
    ```
 
 3. **Start the Flask application using Gunicorn**:

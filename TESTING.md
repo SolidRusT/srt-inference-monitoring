@@ -47,32 +47,31 @@ To enable metric collection, set up the Prometheus Node Exporter on each remote 
 
 1. **Update the package list**:
 
-   ```bash
-   sudo apt update
-   ```
+    ```bash
+    sudo apt update
+    ```
 
 2. **Install Prometheus Node Exporter**:
 
-   ```bash
-   sudo apt install prometheus-node-exporter
-   ```
+    ```bash
+    sudo apt install prometheus-node-exporter
+    ```
 
 3. **Start and enable Node Exporter**:
 
-   ```bash
-   sudo systemctl start prometheus-node-exporter
-   sudo systemctl enable prometheus-node-exporter
-   ```
+    ```bash
+    sudo systemctl start prometheus-node-exporter
+    sudo systemctl enable prometheus-node-exporter
+    ```
 
 4. **Verify Node Exporter**:
+    - Check the status:
 
-   - Check the status:
+        ```bash
+        sudo systemctl status prometheus-node-exporter
+        ```
 
-     ```bash
-     sudo systemctl status prometheus-node-exporter
-     ```
-
-   - Verify metrics are exposed at `http://<server_address>:9100/metrics`.
+    - Verify metrics are exposed at `http://<server_address>:9100/metrics`.
 
 ### 4. Run Metrics Collector
 
@@ -81,7 +80,7 @@ Start the metrics collector script to begin collecting metrics from the configur
 #### Collector command
 
 ```bash
-python prometheus/metrics_collector.py
+python metrics/collector.py
 ```
 
 ### 5. Start Flask Application
@@ -153,7 +152,7 @@ python -m unittest discover tests
    - Command:
 
      ```bash
-     python prometheus/metrics_collector.py
+     python metrics/collector.py
      ```
 
 3. **Start Flask Application**:
@@ -172,7 +171,6 @@ python -m unittest discover tests
 ### Running Tests
 
 1. **Unit Tests**:
-
    - Run the unit tests to ensure all components are functioning correctly.
    - Command:
 
