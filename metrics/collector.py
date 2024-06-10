@@ -26,7 +26,7 @@ def collect_metrics(redis_client):
             logger.info(f"Collected metrics from {server['name']}: {data}")
             cpu_usage = aggregate_cpu_usage(data)
             disk_usage = aggregate_disk_usage(data)
-            network_io = aggregate_network_io(data)
+            network_io = aggregate_network_io(data, interface=server.get('network_interface', 'eno1'))
             metrics[f'{server["name"]}_cpu_usage'].set(cpu_usage)
             metrics[f'{server["name"]}_memory_usage'].set(data.get('node_memory_MemTotal_bytes', 0))
             metrics[f'{server["name"]}_gpu_usage'].set(data.get('nvidia_gpu_utilization', 0))  # Ensure correct key
