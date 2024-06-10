@@ -2,7 +2,6 @@ import os
 import requests
 import yaml
 import logging
-from prometheus_client import start_http_server
 from apscheduler.schedulers.background import BackgroundScheduler
 from redis import Redis
 from metrics.prometheus_metrics import registry, initialize_metric, metrics  # Ensure metrics is imported
@@ -86,14 +85,12 @@ def collect_metrics(redis_client):
 
 if __name__ == "__main__":
     config = load_config()
-    metrics_port = config.get('metrics_port', 8000)
     redis_host = os.getenv('VALKEY_HOST', config.get('redis', {}).get('host', 'localhost'))
     redis_client = Redis(
         host=redis_host,
         port=config.get('redis', {}).get('port', 6379),
         db=config.get('redis', {}).get('db', 0)
     )
-    start_http_server(metrics_port, registry=registry)  # Expose metrics on specified port
     scheduler = BackgroundScheduler()
     scheduler.add_job(collect_metrics, 'interval', seconds=30, args=[redis_client])
     scheduler.start()

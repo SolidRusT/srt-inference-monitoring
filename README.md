@@ -13,39 +13,34 @@ This tool monitors the performance of a set of machines in a local network. It c
 ## Prerequisites
 
 1. **Python 3.11**
-2. **Prometheus Gateway** running on `localhost:9091`
+2. **Docker and Docker Compose**
 3. **Prometheus Node Exporter** installed and running on each node (refer to `NODES.md` for setup instructions)
-4. **Redis** server running on your local machine or accessible from it
 
 ## Configuration
 
-1. **Copy the example configuration file**:
+All configurable parameters are stored in `config.yaml`.
 
-   ```bash
-   cp config-example.yaml config.yaml
-   ```
+### Example `config.yaml`
 
-2. **Edit `config.yaml`** with your server details:
+```yaml
+servers:
+  - name: ServerOne
+    address: http://ServerOne:9100
+  - name: ServerTwo
+    address: http://ServerTwo:9100
 
-   ```yaml
-   servers:
-     - name: ServerOne
-       address: http://ServerOne:9100
-     - name: ServerTwo
-       address: http://ServerTwo:9100
+dashboard:
+  host: 0.0.0.0
+  port: 5000
+  debug: true
 
-   dashboard:
-     host: 0.0.0.0
-     port: 5000
-     debug: true
+metrics_port: 8000
 
-   metrics_port: 8000
-
-   redis:
-     host: localhost
-     port: 6379
-     db: 0
-   ```
+redis:
+  host: localhost
+  port: 6379
+  db: 0
+```
 
 ## Installation
 
@@ -71,16 +66,27 @@ This tool monitors the performance of a set of machines in a local network. It c
 
 ## Running the Application
 
-1. **Start the Prometheus gateway**:
-   Ensure that the Prometheus gateway is running on `localhost:9091`.
+### Using Docker Compose
 
-2. **Start the metrics collector and Flask application using Gunicorn**:
+1. **Ensure Docker and Docker Compose are installed.**
+2. **Start the application**:
+
+   ```bash
+   docker-compose up -d --build
+   ```
+
+3. **Access the dashboard**:
+   Open a web browser and navigate to `http://localhost:5000`.
+
+### Manually
+
+1. **Start the metrics collector and Flask app**:
 
    ```bash
    python start.py
    ```
 
-3. **Access the dashboard**:
+2. **Access the dashboard**:
    Open a web browser and navigate to `http://localhost:5000`.
 
 ## Running Tests
@@ -93,11 +99,11 @@ This tool monitors the performance of a set of machines in a local network. It c
 
 ## Logging
 
-Logs will provide information about the metrics collection process and any errors encountered. Check the logs for messages confirming that metrics are being collected and pushed to the Prometheus gateway.
+Logs will provide information about the metrics collection process and any errors encountered. Check the logs for messages confirming that metrics are being collected and pushed to the Redis (Valkey) server.
 
 ## Troubleshooting
 
-- **Metrics not displaying**: Ensure that the Prometheus gateway is running and accessible. Check the logs for any errors in metrics collection.
+- **Metrics not displaying**: Ensure that the Prometheus Node Exporter is running and accessible on each node. Check the logs for any errors in metrics collection.
 - **Scheduler not running**: Confirm that the scheduler is starting and running the `collect_metrics` function.
 
 ## License

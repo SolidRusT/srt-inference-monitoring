@@ -5,7 +5,6 @@ services:
     build: .
     ports:
       - "5000:5000"
-      - "8000:8000"
     environment:
       - VALKEY_HOST=valkey
     depends_on:
