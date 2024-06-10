@@ -10,7 +10,9 @@ from metrics.metric_parsers import parse_prometheus_metrics
 from metrics.metric_aggregators import aggregate_cpu_usage, aggregate_disk_usage, aggregate_network_io
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+debug_mode = os.getenv('DEBUG_MODE', 'False').lower() == 'true'
+logging_level = logging.DEBUG if debug_mode else logging.INFO
+logging.basicConfig(level=logging_level)
 logger = logging.getLogger(__name__)
 
 def collect_metrics(redis_client):
@@ -23,7 +25,7 @@ def collect_metrics(redis_client):
             response = requests.get(server['address'] + '/metrics')
             response.raise_for_status()
             data = parse_prometheus_metrics(response.text)
-            logger.info(f"Collected metrics from {server['name']}: {data}")
+            logger.debug(f"Collected metrics from {server['name']}: {data}")
             cpu_usage = aggregate_cpu_usage(data)
             disk_usage = aggregate_disk_usage(data)
             network_io = aggregate_network_io(data, interface=server.get('network_interface', 'eno1'))
@@ -39,7 +41,7 @@ def collect_metrics(redis_client):
             redis_client.set(f'{server["name"]}_disk_usage', disk_usage)
             redis_client.set(f'{server["name"]}_network_io', network_io)
             # Log Redis cache
-            logger.info(f"Cached metrics for {server['name']} in Redis")
+            logger.debug(f"Cached metrics for {server['name']} in Redis")
         except requests.exceptions.RequestException as e:
             logger.error(f"Error collecting metrics from {server['name']}: {e}")
 

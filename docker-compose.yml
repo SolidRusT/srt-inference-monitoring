@@ -8,6 +8,7 @@ services:
       - "8000:8000"
     environment:
       - VALKEY_HOST=valkey
+      - DEBUG_MODE=false
     depends_on:
       - valkey
     volumes:

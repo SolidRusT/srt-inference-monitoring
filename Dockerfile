@@ -8,7 +8,8 @@ WORKDIR /app
 COPY . /app
 
 # Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && apt-get install -y curl \
+    && pip install --no-cache-dir -r requirements.txt
 
 # Make port 5000 and 8000 available to the world outside this container
 EXPOSE 5000
