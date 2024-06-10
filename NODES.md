@@ -59,6 +59,7 @@ To monitor GPU usage, install the NVIDIA DCGM exporter on each machine with an N
 2. **Install the NVIDIA DCGM exporter**:
 
     ```bash
+    # https://github.com/NVIDIA/dcgm-exporter
     wget https://github.com/NVIDIA/dcgm-exporter/releases/download/v2.0.13-2.3.0/nvidia-dcgm-exporter_2.0.13-2.3.0_amd64.deb
     sudo dpkg -i nvidia-dcgm-exporter_2.0.13-2.3.0_amd64.deb
     ```

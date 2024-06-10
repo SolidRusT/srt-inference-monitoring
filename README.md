@@ -25,14 +25,10 @@ All configurable parameters are stored in `config.yaml`.
 
 ```yaml
 servers:
-  - name: Erebus
-    address: http://erebus:9100
-  - name: Thanatos
-    address: http://thanatos:9100
-  - name: Zelus
-    address: http://zelus:9100
-  - name: Orpheus
-    address: http://orpheus:9100
+  - name: ServerOne
+    address: http://ServerOne:9100
+  - name: ServerTwo
+    address: http://ServerTwo:9100
 
 dashboard:
   host: 0.0.0.0
