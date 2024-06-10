@@ -10,7 +10,6 @@ services:
       - VALKEY_HOST=valkey
     depends_on:
       - valkey
-      - grafana
     volumes:
       - .:/app
 
@@ -30,11 +29,12 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - ./provisioning:/etc/grafana/provisioning
       - ./dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - app
 
 volumes:
   valkey_data:
