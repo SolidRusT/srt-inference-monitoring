@@ -10,13 +10,14 @@ services:
       - VALKEY_HOST=valkey
     depends_on:
       - valkey
+      - grafana
     volumes:
       - .:/app
 
   valkey:
     image: docker.io/valkey/valkey:latest
     environment:
-      - ALLOW_EMPTY_PASSWORD=yes
+      - ALLOW_EMPTY_PASSWORD=yes  # Recommended only for development
       - VALKEY_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
     ports:
       - "6379:6379"
@@ -29,16 +30,12 @@ services:
     ports:
       - "3000:3000"
     environment:
+      - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
-      - grafana_data:/var/lib/grafana
       - ./provisioning:/etc/grafana/provisioning
       - ./dashboards:/var/lib/grafana/dashboards
-    depends_on:
-      - app
 
 volumes:
   valkey_data:
-    driver: local
-  grafana_data:
     driver: local
