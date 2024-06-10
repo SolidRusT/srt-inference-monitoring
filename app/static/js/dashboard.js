@@ -16,6 +16,19 @@ document.addEventListener('DOMContentLoaded', function () {
               borderWidth: 1,
               data: []
           }]
+      },
+      options: {
+          responsive: true,
+          scales: {
+              y: {
+                  beginAtZero: true,
+                  ticks: {
+                      callback: function(value) {
+                          return value + '%';
+                      }
+                  }
+              }
+          }
       }
   });
 
@@ -30,6 +43,14 @@ document.addEventListener('DOMContentLoaded', function () {
               borderWidth: 1,
               data: []
           }]
+      },
+      options: {
+          responsive: true,
+          scales: {
+              y: {
+                  beginAtZero: true
+              }
+          }
       }
   });
 
@@ -44,6 +65,19 @@ document.addEventListener('DOMContentLoaded', function () {
               borderWidth: 1,
               data: []
           }]
+      },
+      options: {
+          responsive: true,
+          scales: {
+              y: {
+                  beginAtZero: true,
+                  ticks: {
+                      callback: function(value) {
+                          return value + '%';
+                      }
+                  }
+              }
+          }
       }
   });
 
@@ -58,6 +92,19 @@ document.addEventListener('DOMContentLoaded', function () {
               borderWidth: 1,
               data: []
           }]
+      },
+      options: {
+          responsive: true,
+          scales: {
+              y: {
+                  beginAtZero: true,
+                  ticks: {
+                      callback: function(value) {
+                          return value + '%';
+                      }
+                  }
+              }
+          }
       }
   });
 
@@ -72,6 +119,14 @@ document.addEventListener('DOMContentLoaded', function () {
               borderWidth: 1,
               data: []
           }]
+      },
+      options: {
+          responsive: true,
+          scales: {
+              y: {
+                  beginAtZero: true
+              }
+          }
       }
   });
 
@@ -79,6 +134,7 @@ document.addEventListener('DOMContentLoaded', function () {
       fetch('/metrics')
           .then(response => response.json())
           .then(data => {
+              console.log('Metrics data:', data); // Debugging information
               const labels = Object.keys(data);
               const cpuUsage = labels.map(label => data[label].cpu_usage);
               const memoryUsage = labels.map(label => data[label].memory_usage);
@@ -105,7 +161,8 @@ document.addEventListener('DOMContentLoaded', function () {
               networkChart.data.labels = labels;
               networkChart.data.datasets[0].data = networkIo;
               networkChart.update();
-          });
+          })
+          .catch(error => console.error('Error fetching metrics:', error)); // Debugging information
   }
 
   updateCharts();

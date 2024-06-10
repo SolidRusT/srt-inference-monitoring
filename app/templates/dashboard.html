@@ -6,24 +6,31 @@
     <title>Performance Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <h1>Performance Dashboard</h1>
-    <div>
-        <canvas id="cpuChart"></canvas>
-    </div>
-    <div>
-        <canvas id="memoryChart"></canvas>
-    </div>
-    <div>
-        <canvas id="gpuChart"></canvas>
-    </div>
-    <div>
-        <canvas id="diskChart"></canvas>
-    </div>
-    <div>
-        <canvas id="networkChart"></canvas>
+    <div id="metrics">
+        <div class="metric">
+            <h2>CPU Usage (%)</h2>
+            <canvas id="cpuChart"></canvas>
+        </div>
+        <div class="metric">
+            <h2>Memory Usage (Bytes)</h2>
+            <canvas id="memoryChart"></canvas>
+        </div>
+        <div class="metric">
+            <h2>GPU Usage (%)</h2>
+            <canvas id="gpuChart"></canvas>
+        </div>
+        <div class="metric">
+            <h2>Disk Usage (%)</h2>
+            <canvas id="diskChart"></canvas>
+        </div>
+        <div class="metric">
+            <h2>Network I/O (Bytes)</h2>
+            <canvas id="networkChart"></canvas>
+        </div>
     </div>
 </body>
 </html>

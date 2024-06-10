@@ -2,30 +2,40 @@ body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 20px;
+  background-color: #f4f4f9;
 }
 
 h1 {
   text-align: center;
+  margin-bottom: 20px;
+  font-size: 2.5em;
+  color: #333;
 }
 
 #metrics {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
 }
 
 .metric {
   border: 1px solid #ccc;
+  background-color: #fff;
   padding: 20px;
-  width: 30%;
+  width: 45%;
+  margin: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
 .metric h2 {
-  margin: 0;
+  margin-bottom: 20px;
   font-size: 1.5em;
+  color: #555;
 }
 
-.metric p {
-  font-size: 1.2em;
-  margin: 10px 0 0 0;
+canvas {
+  width: 100% !important;
+  height: auto !important;
 }
