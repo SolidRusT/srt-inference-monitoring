@@ -12,31 +12,22 @@ Ensure the `config.yaml` file is correctly configured with your server details.
 
 ```yaml
 servers:
-  - name: Erebus
-    address: http://erebus:9100
-  - name: Thanatos
-    address: http://thanatos:9100
-  - name: Zelus
-    address: http://zelus:9100
-  - name: Orpheus
-    address: http://orpheus:9100
+  - name: ServerOne
+    address: http://ServerOne:9100
+  - name: ServerTwo
+    address: http://ServerTwo:9100
 
 dashboard:
   host: 0.0.0.0
   port: 5000
   debug: true
-```
 
-### 2. Start Prometheus Gateway
+metrics_port: 8000
 
-Ensure the Prometheus gateway is running and accessible at `localhost:9091`.
-
-#### Gateway command
-
-```bash
-# Ensure Prometheus gateway is running on localhost:9091
-# Command to start Prometheus gateway, if necessary:
-prometheus --config.file=prometheus.yml
+redis:
+  host: localhost
+  port: 6379
+  db: 0
 ```
 
 ### 3. Set Up Remote Servers

@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+      - "8000:8000"
+    environment:
+      - VALKEY_HOST=valkey
+    depends_on:
+      - valkey
+    volumes:
+      - .:/app
+
+  valkey:
+    image: docker.io/valkey/valkey:latest
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes  # Recommended only for development
+      - VALKEY_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    ports:
+      - "6379:6379"
+    command: valkey-server --appendonly yes
+    volumes:
+      - valkey_data:/data
+
+volumes:
+  valkey_data:
+    driver: local
