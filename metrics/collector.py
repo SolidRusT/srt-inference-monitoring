@@ -1,57 +1,17 @@
 import os
 import requests
-import yaml
 import logging
 from apscheduler.schedulers.background import BackgroundScheduler
 from redis import Redis
-from metrics.prometheus_metrics import registry, initialize_metric, metrics  # Ensure metrics is imported
+from metrics.prometheus_metrics import registry, metrics
+from metrics.config import load_config
+from metrics.metrics_initializer import initialize_metrics
+from metrics.metric_parsers import parse_prometheus_metrics
+from metrics.metric_aggregators import aggregate_cpu_usage, aggregate_disk_usage, aggregate_network_io
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-def load_config():
-    with open('config.yaml', 'r') as file:
-        return yaml.safe_load(file)
-
-def initialize_metrics(server_name):
-    logger.info(f"Initializing metrics for server: {server_name}")
-    initialize_metric(server_name, 'cpu_usage', 'CPU Usage')
-    initialize_metric(server_name, 'memory_usage', 'Memory Usage')
-    initialize_metric(server_name, 'gpu_usage', 'GPU Usage')
-    initialize_metric(server_name, 'disk_usage', 'Disk Usage')
-    initialize_metric(server_name, 'network_io', 'Network I/O')
-
-def parse_prometheus_metrics(metrics_text):
-    data = {}
-    for line in metrics_text.splitlines():
-        if line.startswith('#') or not line:
-            continue
-        parts = line.split()
-        if len(parts) == 2:
-            key, value = parts
-            try:
-                data[key] = float(value)
-            except ValueError:
-                logger.warning(f"Could not convert value to float: {value}")
-                continue
-    return data
-
-def aggregate_cpu_usage(data):
-    cpu_keys = [key for key in data.keys() if 'node_cpu_seconds_total' in key]
-    cpu_usage = sum(data[key] for key in cpu_keys)
-    return cpu_usage
-
-def aggregate_disk_usage(data):
-    disk_keys = [key for key in data.keys() if 'node_filesystem_avail_bytes' in key]
-    disk_usage = sum(data[key] for key in disk_keys)
-    return disk_usage
-
-def aggregate_network_io(data):
-    network_receive_keys = [key for key in data.keys() if 'node_network_receive_bytes_total' in key]
-    network_transmit_keys = [key for key in data.keys() if 'node_network_transmit_bytes_total' in key]
-    network_io = sum(data[key] for key in network_receive_keys + network_transmit_keys)
-    return network_io
 
 def collect_metrics(redis_client):
     logger.info("Collecting metrics")
