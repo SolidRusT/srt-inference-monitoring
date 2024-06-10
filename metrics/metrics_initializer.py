@@ -1,7 +1,6 @@
-import logging
 from metrics.prometheus_metrics import initialize_metric
+import logging
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
 def initialize_metrics(server_name):

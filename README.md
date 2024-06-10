@@ -26,8 +26,10 @@ All configurable parameters are stored in `config.yaml`.
 servers:
   - name: ServerOne
     address: http://ServerOne:9100
+    network_interface: eno1
   - name: ServerTwo
     address: http://ServerTwo:9100
+    network_interface: enp7s0
 
 dashboard:
   host: 0.0.0.0

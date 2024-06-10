@@ -1,6 +1,5 @@
 import logging
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
 def parse_prometheus_metrics(metrics_text):
