@@ -48,7 +48,12 @@ document.addEventListener('DOMContentLoaded', function () {
           responsive: true,
           scales: {
               y: {
-                  beginAtZero: true
+                  beginAtZero: true,
+                  ticks: {
+                      callback: function(value) {
+                          return (value / (1024 * 1024 * 1024)).toFixed(2) + ' GB'; // Convert bytes to GB
+                      }
+                  }
               }
           }
       }
@@ -124,7 +129,12 @@ document.addEventListener('DOMContentLoaded', function () {
           responsive: true,
           scales: {
               y: {
-                  beginAtZero: true
+                  beginAtZero: true,
+                  ticks: {
+                      callback: function(value) {
+                          return (value / (1024 * 1024)).toFixed(2) + ' MB'; // Convert bytes to MB
+                      }
+                  }
               }
           }
       }
