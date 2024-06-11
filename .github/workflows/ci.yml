@@ -33,7 +33,7 @@ jobs:
         sed -i 's/ServerOne/localhost/' config.yaml
     - name: Install dependencies
       run: |
-        apt update && apt install redis-cli
+        sudo apt update && sudo apt install redis-cli
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Wait for Valkey to be available
