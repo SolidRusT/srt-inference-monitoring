@@ -42,6 +42,7 @@ jobs:
         pip install -r requirements.txt
     - name: Wait for Valkey to be available
       run: |
+        sleep 30
         for i in {1..10}; do
           if valkey-cli -h ${VALKEY_HOST} ping | grep PONG; then
             break
@@ -49,6 +50,8 @@ jobs:
           echo "Waiting for Valkey to be available..."
           sleep 5
         done
+    - name: Verify Valkey container is running
+      run: docker ps
     - name: Run tests
       run: |
         python -m unittest discover tests
