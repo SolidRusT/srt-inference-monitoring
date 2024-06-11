@@ -14,7 +14,7 @@ jobs:
       valkey:
         image: docker.io/valkey/valkey:latest
         options: >-
-          --health-cmd "valkey-cli -h valkey ping"
+          --health-cmd "redis-cli ping | grep PONG"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
