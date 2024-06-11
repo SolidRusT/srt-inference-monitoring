@@ -19,6 +19,10 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+    env:
+      VALKEY_HOST: valkey
+      VALKEY_PORT: 6379
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -28,10 +32,8 @@ jobs:
     - name: Copy config-example.yaml to config.yaml
       run: cp config-example.yaml config.yaml
     - name: Modify config.yaml for CI
-      env:
-        VALKEY_HOST: valkey
       run: |
-        sed -i "s/localhost/\${VALKEY_HOST}/" config.yaml
+        sed -i "s/localhost/${VALKEY_HOST}/" config.yaml
         sed -i "s/ServerOne/localhost/" config.yaml
     - name: Install dependencies
       run: |
@@ -39,8 +41,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Wait for Valkey to be available
-      env:
-        VALKEY_HOST: valkey
       run: |
         for i in {1..10}; do
           if valkey-cli -h ${VALKEY_HOST} ping | grep PONG; then
@@ -50,8 +50,5 @@ jobs:
           sleep 5
         done
     - name: Run tests
-      env:
-        VALKEY_HOST: valkey
-        VALKEY_PORT: 6379
       run: |
         python -m unittest discover tests
