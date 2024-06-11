@@ -48,6 +48,7 @@ def collect_metrics(redis_client):
 if __name__ == "__main__":
     config = load_config()
     redis_host = os.getenv('VALKEY_HOST', config.get('redis', {}).get('host', 'localhost'))
+    logger.info("Redis host: {redis_host}.")
     redis_client = Redis(
         host=redis_host,
         port=config.get('redis', {}).get('port', 6379),

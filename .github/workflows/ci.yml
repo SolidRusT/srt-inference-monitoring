@@ -41,8 +41,9 @@ jobs:
           sleep 5
         done
     - name: Run tests
-      run: |
-        python -m unittest discover tests
       env:
         VALKEY_HOST: valkey
-        VALKEY_PORT: 6379
+        VALKEY_PORT: 6379  
+      run: |
+        python -m unittest discover tests
+      
