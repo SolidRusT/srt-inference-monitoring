@@ -14,7 +14,7 @@ jobs:
       valkey:
         image: docker.io/valkey/valkey:latest
         options: >-
-          --health-cmd "redis-cli ping | grep PONG"
+          --health-cmd "valkey-cli ping | grep PONG"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -31,11 +31,11 @@ jobs:
       env:
         VALKEY_HOST: valkey
       run: |
-        sed -i 's/localhost/${VALKEY_HOST}/' config.yaml
-        sed -i 's/ServerOne/localhost/' config.yaml
+        sed -i "s/localhost/\${VALKEY_HOST}/" config.yaml
+        sed -i "s/ServerOne/localhost/" config.yaml
     - name: Install dependencies
       run: |
-        sudo apt update && sudo apt install redis-tools
+        sudo apt update && sudo apt install valkey-cli
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Wait for Valkey to be available
@@ -43,13 +43,15 @@ jobs:
         VALKEY_HOST: valkey
       run: |
         for i in {1..10}; do
-          if redis-cli -h ${VALKEY_HOST} ping; then
+          if valkey-cli -h ${VALKEY_HOST} ping; then
             break
           fi
           echo "Waiting for Valkey to be available..."
           sleep 5
         done
     - name: Run tests
+      env:
+        VALKEY_HOST: valkey
+        VALKEY_PORT: 6379
       run: |
         python -m unittest discover tests
-      
