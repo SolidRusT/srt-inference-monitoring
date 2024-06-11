@@ -34,6 +34,15 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    - name: Wait for Redis to be available
+      run: |
+        for i in {1..10}; do
+          if redis-cli -h redis ping; then
+            break
+          fi
+          echo "Waiting for Redis to be available..."
+          sleep 5
+        done
     - name: Run tests
       run: |
         python -m unittest discover tests
